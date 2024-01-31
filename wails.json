@@ -9,5 +9,10 @@
   "author": {
     "name": "Lina",
     "email": "keifanel@gmail.com"
+  },
+  "bindings": {
+    "ts_generation": {
+      "outputType": "interfaces"
+    }
   }
 }

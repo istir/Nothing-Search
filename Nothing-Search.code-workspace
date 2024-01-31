@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"typescript.preferences.importModuleSpecifier": "non-relative",
+		"terminal.integrated.cwd":"frontend"
+	}
+}

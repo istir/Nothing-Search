@@ -22,11 +22,13 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "!/*": ["./wailsjs/go/main"]
+      "!/*": ["./wailsjs/go/main/*"]
     }
   },
   "include": [
-    "src",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
     "wailsjs/go/main"
   ],
   "references": [

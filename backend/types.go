@@ -1,7 +1,8 @@
 package backend
 
 type File struct {
-	Name  string
-	IsDir bool
-	url   string
+	Name         string `json:"name"`
+	IsDir        bool   `json:"isDir"`
+	Url          string `json:"url"`
+	LastModified int8   `json:"lastModified"`
 }

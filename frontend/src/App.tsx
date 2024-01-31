@@ -1,4 +1,4 @@
-import "./App.css";
+// import "./style.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FileBrowser from "@/screens/FileBrowser";
 
