@@ -1,10 +1,13 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
+import { FixedSizeGrid as Grid } from "react-window";
+
 // import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { LoadFiles } from "!/App";
 import File from "@/components/File";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { FileBrowserCell } from "@/components/FileBrowserList";
+import ReactVirtualizedAutoSizer from "react-virtualized-auto-sizer";
 
 export const FILE_HEIGHT = 200;
 const FileBrowser = ({ className }: Props) => {
@@ -13,92 +16,44 @@ const FileBrowser = ({ className }: Props) => {
 		queryKey: ["files"],
 		queryFn: () =>
 			LoadFiles(
-				"/Users/lina/Library/Mobile Documents/com~apple~CloudDocs/Lina/hot",
+				"/Users/lina/Library/Mobile Documents/com~apple~CloudDocs/Lina/pretty",
 			),
 	});
 
-	const fileVirtualizer = useVirtualizer({
-		count: files.data?.length || 0,
-		estimateSize: () => FILE_HEIGHT,
-		overscan: 25,
-		getScrollElement: () => scrollRef.current,
-	});
-
-	console.log("files", files.data?.length);
-	console.log("virtual items", fileVirtualizer.getVirtualItems());
-
+	if (!files.data?.length) {
+		return <div>No data</div>;
+	}
 	return (
-		<>
-			<div
-				ref={scrollRef}
-				className="List h-dvh"
-				style={{
-					// height: `200px`,
-					// width: `400px`,
-					overflow: "auto",
-				}}
-			>
-				<div
-					style={{
-						height: `${fileVirtualizer.getTotalSize()}px`,
-						width: "100%",
-						position: "relative",
-					}}
-				>
-					{fileVirtualizer.getVirtualItems().map((virtualRow) =>
-						files.data?.[virtualRow.index] ? (
-							<File
-								file={files.data?.[virtualRow.index]}
-								key={virtualRow.index}
-								style={{
-									position: "absolute",
-									top: 0,
-									left: 0,
-									width: "100%",
-									height: `${virtualRow.size}px`,
-									transform: `translateY(${virtualRow.start}px)`,
-								}}
+		<div
+			style={{
+				height: "100vh",
+				width: "100vw",
+			}}
+		>
+			<ReactVirtualizedAutoSizer>
+				{({ height, width }) => (
+					<Grid
+						columnCount={6}
+						columnWidth={width / 6}
+						height={height}
+						rowCount={(files.data?.length || 6) / 6}
+						rowHeight={FILE_HEIGHT}
+						width={width}
+					>
+						{({ columnIndex, rowIndex, style, isScrolling }) => (
+							<FileBrowserCell
+								columnIndex={columnIndex}
+								rowIndex={rowIndex}
+								style={style}
+								data={files.data?.[columnIndex * rowIndex]}
 							/>
-						) : null,
-					)}
-				</div>
-			</div>
-		</>
+						)}
+					</Grid>
+				)}
+			</ReactVirtualizedAutoSizer>
+			)
+		</div>
 	);
-
-	// return (
-	// 	<div
-	// 		ref={scrollRef}
-	// 		style={{ overflowY: "auto", border: "1px solid #c8c8c8" }}
-	// 	>
-	// 		<div
-	// 			className={cn(" gap-5 grid p-5", className)}
-	// 			// style={{
-	// 			// 	gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-	// 			// }}
-	// 			style={{
-	// 				height: `${fileVirtualizer.getTotalSize()}px`,
-	// 				position: "relative",
-	// 				// gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-	// 				// display: "grid",
-	// 			}}
-	// 		>
-	// 			{fileVirtualizer
-	// 				.getVirtualItems()
-	// 				.map((virtualItem) =>
-	// 					files.data?.[virtualItem.index] ? (
-	// 						<File
-	// 							file={files.data?.[virtualItem.index]}
-	// 							key={virtualItem.index}
-	// 						/>
-	// 					) : null,
-	// 				)}
-	// 			{/* {files.data?.map((file) => (
-	// 				<File file={file} key={file.url} />
-	// 			))} */}
-	// 		</div>
-	// 	</div>
-	// );
 };
 
 export default FileBrowser;

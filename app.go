@@ -1,9 +1,9 @@
 package main
 
 import (
-	"changeme/backend"
 	"context"
 	"fmt"
+	"nothingsearch/backend"
 )
 
 // App struct
