@@ -20,9 +20,6 @@ type FileLoader struct {
 
 func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	var err error
-	// image.RegisterFormat("png", "PNG", png.Decode, png.DecodeConfig)
-	// image.RegisterFormat("jpeg", "JPEG", jpeg.Decode, jpeg.DecodeConfig)
-	// requestedFilename := strings.TrimPrefix(req.URL.Path, "/")
 	fileName := req.URL.Path
 	var thumbnailSize int
 	size, err := strconv.Atoi(req.URL.Query().Get("size"))
@@ -31,9 +28,6 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	} else {
 		thumbnailSize = size
 	}
-	// fileName, thumbnailSize := getThumbnailDataFromThumbnail(requestedFilename)
-	println("Requesting file:", fileName, size, thumbnailSize)
-
 	file, err := os.Open(fileName)
 	if err != nil {
 		fmt.Println("Error opening image file:", err)
@@ -41,14 +35,6 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	defer file.Close()
 
-	// return
-	// file, err := os.Open(fileName)
-	// fileData := file.
-	// if err != nil {
-	// 	res.WriteHeader(http.StatusBadRequest)
-	// 	res.Write([]byte(fmt.Sprintf("Could not load file %s", fileName)))
-	// }
-	println("thumbnail size %s", thumbnailSize)
 	if thumbnailSize > 0 {
 		img, err := getImageFromFile(file)
 		if err != nil {
@@ -58,7 +44,6 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			res.Write(convertFileToBytes(file))
 			return
 		}
-		println("thumbnail exists %s", thumbnailSize)
 		thumbnail := createThumbnail(img, thumbnailSize)
 		if thumbnail != nil {
 			res.Write(thumbnail)

@@ -2,18 +2,14 @@
 
 ## A play on Everything
 
-## 0.0.1
+## 0.0.2
 
-### Added
+## 0.0.1
 
 - Basic image support
 - Thumbnails
 
-### Changed
-
-### Fixed
-
-### To be done
+## To be done
 
 - Add a SQLite database to speed up the app
 - Always serve thumbnails as jpeg (?)

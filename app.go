@@ -19,6 +19,7 @@ func NewApp() *App {
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
+	backend.ConnectToDb()
 	a.ctx = ctx
 }
 
@@ -27,6 +28,6 @@ func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
 
-func (a *App) LoadFiles(baseDir string) []backend.File {
+func (a *App) LoadFiles(baseDir string) backend.FileResponse {
 	return backend.LoadFiles(baseDir)
 }

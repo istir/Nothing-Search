@@ -6,3 +6,8 @@ type File struct {
 	Url          string `json:"url"`
 	LastModified int8   `json:"lastModified"`
 }
+
+type FileResponse struct {
+	Files []File  `json:"files"`
+	Next  *string `json:"next"`
+}

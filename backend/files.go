@@ -8,7 +8,7 @@ import (
 
 const LIMIT = 500
 
-func LoadFiles(baseDir string) []File {
+func LoadFiles(baseDir string) FileResponse {
 	// const baseDir = "/Users/lina/Library/Mobile Documents/com~apple~CloudDocs"
 	files, err := os.ReadDir(baseDir)
 	if err != nil {
@@ -21,6 +21,8 @@ func LoadFiles(baseDir string) []File {
 		}
 		fileT = append(fileT, File{Name: file.Name(), IsDir: file.IsDir(), Url: fmt.Sprintf("%s/%s", baseDir, file.Name())})
 	}
-
-	return fileT
+	AddFilesToDb(fileT)
+	var response FileResponse
+	response.Files = fileT
+	return response
 }

@@ -6,6 +6,7 @@ toolchain go1.21.6
 
 require (
 	github.com/disintegration/imaging v1.6.2
+	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/wailsapp/wails/v2 v2.7.1
 )
 
