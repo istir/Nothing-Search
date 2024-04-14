@@ -24,7 +24,13 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// } else {
 	// 	thumbnailSize = size
 	// }
-	file, err := os.Open(fileName)
+	thumbPath := GetThumbnailPath(fileName)
+	if _, err := os.Stat(thumbPath); err != nil {
+		// create thumbnail first
+		fmt.Println("Creating thumbnail", thumbPath, fileName)
+		CreateThumbnail(fileName)
+	}
+	file, err := os.Open(thumbPath)
 	if err != nil {
 		fmt.Println("Error opening image file:", err)
 		return
