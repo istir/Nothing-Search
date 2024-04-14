@@ -4,6 +4,9 @@
 
 ## 0.0.2
 
+- A bit of thumbnail generation. It should probably NOT create all files at once, but rather just generate it on the fly and save, as in the previous solution.
+- A bit of database
+
 ## 0.0.1
 
 - Basic image support

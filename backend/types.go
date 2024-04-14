@@ -8,6 +8,6 @@ type File struct {
 }
 
 type FileResponse struct {
-	Files []File  `json:"files"`
-	Next  *string `json:"next"`
+	Files []File `json:"files"`
+	Next  string `json:"next"`
 }

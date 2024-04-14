@@ -28,6 +28,10 @@ func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
 
-func (a *App) LoadFiles(baseDir string) backend.FileResponse {
-	return backend.LoadFiles(baseDir)
+func (a *App) LoadAllFilesToDb(baseDir string) {
+	go backend.LoadAllFilesToDb(baseDir)
+}
+
+func (a *App) LoadFiles(baseDir string, lastEvaluatedKey string) backend.FileResponse {
+	return backend.LoadFiles(baseDir, lastEvaluatedKey)
 }

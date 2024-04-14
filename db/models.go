@@ -4,11 +4,15 @@
 
 package db
 
+import (
+	"database/sql"
+)
+
 type File struct {
-	ID              interface{}
-	Name            interface{}
-	Path            interface{}
-	ThumbnailExists interface{}
-	DateModified    interface{}
-	DateCreated     interface{}
+	ID              sql.NullInt64
+	Name            sql.NullString
+	Path            sql.NullString
+	ThumbnailExists sql.NullInt64
+	DateModified    sql.NullInt64
+	DateCreated     sql.NullInt64
 }

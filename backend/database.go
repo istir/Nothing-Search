@@ -68,12 +68,94 @@ func createDatabase() {
 
 // }
 
-func AddFilesToDb(files []File) {
-	// var payload
-	// for index, file := range files {
+func ConvertDbFileToFile(file db.File) File {
+	return File{
+		Name: file.Name.String,
+		Url:  file.Path.String,
+		// LastModified: file.DateModified.(int8),
+		IsDir: false,
+	}
+}
 
+func GetPathsFromFiles(files []File) []string {
+	var paths []string
+	for _, file := range files {
+		paths = append(paths, file.Url)
+	}
+	return paths
+}
+
+func GetFilesByBasePath(path string) []File {
+	response, err := dbQueries.GetFilesByDirectory(ctx, sql.NullString{String: path + "%", Valid: true})
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+	var items []File
+	for _, item := range response {
+		items = append(items, ConvertDbFileToFile(item))
+	}
+	return items
+}
+
+func GetFilesByPaths(paths []string) []File {
+	p := make([]sql.NullString, len(paths))
+	for i, v := range paths {
+		p[i] = sql.NullString{
+			String: v,
+			Valid:  true,
+		}
+	}
+	response, err := dbQueries.GetFilesByPaths(ctx, p)
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+	var items []File
+	for _, item := range response {
+		items = append(items, ConvertDbFileToFile(item))
+	}
+	return items
+}
+
+func GetFileByPath(path string) File {
+	arr := make([]string, 1)
+	arr = append(arr, path)
+	return GetFilesByPaths(arr)[0]
+}
+
+func createAndInsertThumbnail(filePath string, qtx *db.Queries) {
+	go CreateThumbnail(filePath)
+	qtx.SetThumbnail(ctx, db.SetThumbnailParams{
+		ThumbnailExists: sql.NullInt64{
+			Int64: 1,
+			Valid: true,
+		},
+		Path: sql.NullString{
+			String: filePath,
+			Valid:  true,
+		},
+	})
+}
+
+func AddThumbnailsForFiles(filePaths []string) {
+
+	// tx, err := database.Begin()
+	// if err != nil {
+	// 	log.Fatal("balls", err)
+	// 	return
 	// }
-	//
+	// qtx := dbQueries.WithTx(tx)
+	// for _, filePath := range filePaths {
+	// 	// createAndInsertThumbnail(filePath, qtx)
+	// }
+	// tx.Commit()
+}
+
+func AddFilesToDb(files []File) {
+	// f := GetFiles(GetPathsFromFiles(files))
+	// fmt.Printf("Found %d files", len(f))
+	var pathsToCreateThumbnails []string
 	tx, err := database.Begin()
 	if err != nil {
 		log.Fatal("balls", err)
@@ -83,7 +165,19 @@ func AddFilesToDb(files []File) {
 
 	qtx := dbQueries.WithTx(tx)
 	for _, file := range files {
-
+		foundFile, err := qtx.GetFile(ctx, sql.NullString{
+			String: file.Url,
+			Valid:  true,
+		})
+		if err == nil {
+			log.Printf("File %s doesn't exist, creating thumbnail", file.Url)
+			pathsToCreateThumbnails = append(pathsToCreateThumbnails, file.Url)
+			// createAndInsertThumbnail(file.Url, qtx)
+		} else if foundFile.ThumbnailExists.Int64 == 0 {
+			// log.Printf("File %s exists without thumbnail, creating", file.Url)
+			pathsToCreateThumbnails = append(pathsToCreateThumbnails, file.Url)
+			// createAndInsertThumbnail(file.Url, qtx)
+		}
 		qtx.CreateFile(ctx, db.CreateFileParams{
 			Name: sql.NullString{
 				String: file.Name,
@@ -104,4 +198,5 @@ func AddFilesToDb(files []File) {
 		})
 	}
 	tx.Commit()
+	go AddThumbnailsForFiles(pathsToCreateThumbnails)
 }

@@ -3,12 +3,8 @@ package backend
 import (
 	"bytes"
 	"fmt"
-	"image"
 	"net/http"
 	"os"
-	"strconv"
-
-	"github.com/disintegration/imaging"
 
 	_ "image/jpeg"
 	_ "image/png"
@@ -21,13 +17,13 @@ type FileLoader struct {
 func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	var err error
 	fileName := req.URL.Path
-	var thumbnailSize int
-	size, err := strconv.Atoi(req.URL.Query().Get("size"))
-	if err != nil {
-		thumbnailSize = 0
-	} else {
-		thumbnailSize = size
-	}
+	// var thumbnailSize int
+	// size, err := strconv.Atoi(req.URL.Query().Get("size"))
+	// if err != nil {
+	// 	thumbnailSize = 0
+	// } else {
+	// 	thumbnailSize = size
+	// }
 	file, err := os.Open(fileName)
 	if err != nil {
 		fmt.Println("Error opening image file:", err)
@@ -35,38 +31,40 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	defer file.Close()
 
-	if thumbnailSize > 0 {
-		img, err := getImageFromFile(file)
-		if err != nil {
-			return
-		}
-		if img == nil {
-			res.Write(convertFileToBytes(file))
-			return
-		}
-		thumbnail := createThumbnail(img, thumbnailSize)
-		if thumbnail != nil {
-			res.Write(thumbnail)
-			return
-		} else {
-			println("error creating thumb")
-		}
+	// if thumbnailSize > 0 {
+	// 	img, err := getImageFromFile(file)
+	// 	if err != nil {
+	// 		return
+	// 	}
+	// 	if img == nil {
+	// 		res.Write(convertFileToBytes(file))
+	// 		return
+	// 	}
+	// 	thumbnail := createThumbnail(img, thumbnailSize)
+	// 	if thumbnail != nil {
+	// 		res.Write(thumbnail)
+	// 		return
+	// 	} else {
+	// 		println("error creating thumb")
+	// 	}
 
-		res.Write(convertFileToBytes(file))
-		defer file.Close()
-	}
+	// 	res.Write(convertFileToBytes(file))
+	// 	defer file.Close()
+	// }
+	res.Write(convertFileToBytes(file))
+
 }
 
-func getImageFromFile(file *os.File) (image.Image, error) {
+// func getImageFromFile(file *os.File) (image.Image, error) {
 
-	img, _, err := image.Decode(file)
-	if err != nil {
-		fmt.Println("Error decoding image file:", err)
-		return nil, err
-	}
+// 	img, _, err := image.Decode(file)
+// 	if err != nil {
+// 		fmt.Println("Error decoding image file:", err)
+// 		return nil, err
+// 	}
 
-	return img, nil
-}
+// 	return img, nil
+// }
 
 func convertFileToBytes(file *os.File) []byte {
 	buf := new(bytes.Buffer)
@@ -78,16 +76,16 @@ func convertFileToBytes(file *os.File) []byte {
 	return buf.Bytes()
 }
 
-func createThumbnail(image image.Image, size int) []byte {
-	thumbnail := imaging.Fit(image, size, size, imaging.Lanczos)
-	buf := new(bytes.Buffer)
-	err := imaging.Encode(buf, thumbnail, imaging.PNG)
-	if err != nil {
-		// handle error
-		return []byte{}
-	}
-	return buf.Bytes()
-}
+// func createThumbnail(image image.Image, size int) []byte {
+// 	thumbnail := imaging.Fit(image, size, size, imaging.Lanczos)
+// 	buf := new(bytes.Buffer)
+// 	err := imaging.Encode(buf, thumbnail, imaging.PNG)
+// 	if err != nil {
+// 		// handle error
+// 		return []byte{}
+// 	}
+// 	return buf.Bytes()
+// }
 
 func NewFileLoader() *FileLoader {
 	return &FileLoader{}

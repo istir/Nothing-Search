@@ -14,3 +14,12 @@ RETURNING *;
 
 -- name: GetFile :one
 SELECT * FROM files WHERE path = ? LIMIT 1;
+
+-- name: GetFilesByPaths :many
+SELECT * FROM files WHERE path IN (sqlc.slice('paths'));
+
+-- name: GetFilesByDirectory :many
+SELECT * FROM files WHERE path LIKE ?;
+
+-- name: SetThumbnail :one
+UPDATE files SET thumbnail_exists = ? WHERE path = ? RETURNING *;

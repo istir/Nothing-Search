@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"strings"
 )
 
 const createFile = `-- name: CreateFile :one
@@ -25,10 +27,10 @@ RETURNING id, name, path, thumbnail_exists, date_modified, date_created
 `
 
 type CreateFileParams struct {
-	Name         interface{}
-	Path         interface{}
-	DateModified interface{}
-	DateCreated  interface{}
+	Name         sql.NullString
+	Path         sql.NullString
+	DateModified sql.NullInt64
+	DateCreated  sql.NullInt64
 }
 
 func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) (File, error) {
@@ -54,8 +56,109 @@ const getFile = `-- name: GetFile :one
 SELECT id, name, path, thumbnail_exists, date_modified, date_created FROM files WHERE path = ? LIMIT 1
 `
 
-func (q *Queries) GetFile(ctx context.Context, path interface{}) (File, error) {
+func (q *Queries) GetFile(ctx context.Context, path sql.NullString) (File, error) {
 	row := q.db.QueryRowContext(ctx, getFile, path)
+	var i File
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Path,
+		&i.ThumbnailExists,
+		&i.DateModified,
+		&i.DateCreated,
+	)
+	return i, err
+}
+
+const getFilesByDirectory = `-- name: GetFilesByDirectory :many
+SELECT id, name, path, thumbnail_exists, date_modified, date_created FROM files WHERE path LIKE ?
+`
+
+func (q *Queries) GetFilesByDirectory(ctx context.Context, path sql.NullString) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, getFilesByDirectory, path)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Path,
+			&i.ThumbnailExists,
+			&i.DateModified,
+			&i.DateCreated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFilesByPaths = `-- name: GetFilesByPaths :many
+SELECT id, name, path, thumbnail_exists, date_modified, date_created FROM files WHERE path IN (/*SLICE:paths*/?)
+`
+
+func (q *Queries) GetFilesByPaths(ctx context.Context, paths []sql.NullString) ([]File, error) {
+	query := getFilesByPaths
+	var queryParams []interface{}
+	if len(paths) > 0 {
+		for _, v := range paths {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:paths*/?", strings.Repeat(",?", len(paths))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:paths*/?", "NULL", 1)
+	}
+	rows, err := q.db.QueryContext(ctx, query, queryParams...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Path,
+			&i.ThumbnailExists,
+			&i.DateModified,
+			&i.DateCreated,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const setThumbnail = `-- name: SetThumbnail :one
+UPDATE files SET thumbnail_exists = ? WHERE path = ? RETURNING id, name, path, thumbnail_exists, date_modified, date_created
+`
+
+type SetThumbnailParams struct {
+	ThumbnailExists sql.NullInt64
+	Path            sql.NullString
+}
+
+func (q *Queries) SetThumbnail(ctx context.Context, arg SetThumbnailParams) (File, error) {
+	row := q.db.QueryRowContext(ctx, setThumbnail, arg.ThumbnailExists, arg.Path)
 	var i File
 	err := row.Scan(
 		&i.ID,
