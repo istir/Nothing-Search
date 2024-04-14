@@ -71,7 +71,7 @@ func (q *Queries) GetFile(ctx context.Context, path sql.NullString) (File, error
 }
 
 const getFilesByDirectory = `-- name: GetFilesByDirectory :many
-SELECT id, name, path, thumbnail_exists, date_modified, date_created FROM files WHERE path LIKE ?
+SELECT id, name, path, thumbnail_exists, date_modified, date_created FROM files WHERE path LIKE ? ORDER BY date_modified DESC
 `
 
 func (q *Queries) GetFilesByDirectory(ctx context.Context, path sql.NullString) ([]File, error) {
@@ -105,7 +105,7 @@ func (q *Queries) GetFilesByDirectory(ctx context.Context, path sql.NullString) 
 }
 
 const getFilesByPaths = `-- name: GetFilesByPaths :many
-SELECT id, name, path, thumbnail_exists, date_modified, date_created FROM files WHERE path IN (/*SLICE:paths*/?)
+SELECT id, name, path, thumbnail_exists, date_modified, date_created FROM files WHERE path IN (/*SLICE:paths*/?) ORDER BY date_modified DESC
 `
 
 func (q *Queries) GetFilesByPaths(ctx context.Context, paths []sql.NullString) ([]File, error) {

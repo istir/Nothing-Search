@@ -27,13 +27,20 @@ func LoadAllFilesToDb(baseDir string) bool {
 			go LoadAllFilesToDb(filePath)
 			continue
 		}
-		filesResponse = append(filesResponse, File{Name: file.Name(), IsDir: file.IsDir(), Url: filePath})
+		fileData, err := os.Stat(filePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		filesResponse = append(filesResponse, File{Name: file.Name(), IsDir: file.IsDir(), Url: filePath, LastModified: fileData.ModTime().Unix(), DateCreated: fileData.ModTime().Unix()})
 	}
 	go AddFilesToDb(filesResponse)
 	return true
 }
 
 func getNextParam(files []File) string {
+	if len(files) <= 0 {
+		return ""
+	}
 	var next string = files[len(files)-1].Url
 	return next
 }

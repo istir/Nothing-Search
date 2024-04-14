@@ -188,12 +188,12 @@ func AddFilesToDb(files []File) {
 				Valid:  true,
 			},
 			DateModified: sql.NullInt64{
-				Int64: 0,
-				Valid: false,
+				Int64: file.LastModified,
+				Valid: true,
 			},
 			DateCreated: sql.NullInt64{
-				Int64: 0,
-				Valid: false,
+				Int64: file.DateCreated,
+				Valid: true,
 			},
 		})
 	}

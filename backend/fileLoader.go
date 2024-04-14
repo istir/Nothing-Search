@@ -2,7 +2,9 @@ package backend
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -57,7 +59,16 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// 	res.Write(convertFileToBytes(file))
 	// 	defer file.Close()
 	// }
-	res.Write(convertFileToBytes(file))
+	if file != nil {
+		b, err := convertFileToBytes(file)
+		if err != nil {
+			return
+		}
+		status, err := res.Write(b)
+		if err != nil {
+			log.Fatal("ERROR", err, status)
+		}
+	}
 
 }
 
@@ -72,14 +83,19 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 // 	return img, nil
 // }
 
-func convertFileToBytes(file *os.File) []byte {
+func convertFileToBytes(file *os.File) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(file)
 	if err != nil {
-		fmt.Println("Error converting file to bytes:", err)
-		return nil
+		// fmt.Println("Error converting file to bytes:", err)
+		log.Fatal("Error converting file to bytes", err)
+		return nil, err
 	}
-	return buf.Bytes()
+	bufferBytes := buf.Bytes()
+	if len(bufferBytes) <= 0 {
+		return nil, errors.New("No bytes for file")
+	}
+	return bufferBytes, nil
 }
 
 // func createThumbnail(image image.Image, size int) []byte {
