@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"nothingsearch/backend"
+	"nothingsearch/backend/database"
 )
 
 // App struct
@@ -19,7 +20,7 @@ func NewApp() *App {
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
-	backend.ConnectToDb()
+	database.ConnectToDb()
 	a.ctx = ctx
 }
 

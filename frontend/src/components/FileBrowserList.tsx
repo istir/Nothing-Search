@@ -1,5 +1,5 @@
 import FileItem from "@/components/File";
-import type { backend } from "wailsjs/go/models";
+import type { backend, database } from "wailsjs/go/models";
 
 export function FileBrowserCell({
 	columnIndex,
@@ -17,5 +17,5 @@ type FileBrowserCellProps = {
 	columnIndex: number;
 	rowIndex: number;
 	style: React.CSSProperties;
-	data: backend.File;
+	data: database.File;
 };

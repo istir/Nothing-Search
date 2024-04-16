@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"nothingsearch/backend/config"
 	"os"
 
 	_ "image/jpeg"
@@ -26,7 +27,7 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// } else {
 	// 	thumbnailSize = size
 	// }
-	thumbPath := GetThumbnailPath(fileName)
+	thumbPath := config.GetThumbnailPath(fileName)
 	if _, err := os.Stat(thumbPath); err != nil {
 		// create thumbnail first
 		fmt.Println("Creating thumbnail", thumbPath, fileName)

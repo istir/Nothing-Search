@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"log"
+	"nothingsearch/backend/config"
 	"os"
 
 	"image/jpeg"
@@ -38,7 +39,7 @@ func CreateThumbnail(filePath string) {
 }
 
 func saveThumbnailToDisk(filePath string, img image.Image) {
-	thumbPath := GetThumbnailPath(filePath)
+	thumbPath := config.GetThumbnailPath(filePath)
 	file, err := os.Create(thumbPath)
 	if err != nil {
 		log.Fatal("Error creating thumb dir!", err)
